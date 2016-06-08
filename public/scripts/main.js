@@ -19,6 +19,7 @@ function Encadenados() {
   this.checkSetup();
 
   this.words = [];
+  this.players = [];
 
   this.messageList = document.getElementById('messages');
   this.playerList = document.getElementById('players');
@@ -57,9 +58,11 @@ Encadenados.prototype.initFirebase = function() {
 Encadenados.prototype.loadPlayers = function() {
   this.playersRef = this.database.ref('players');
   this.playersRef.off();
+  this.players = [];
   var setPlayer = function(data) {
     var val = data.val();
     this.displayPlayer(data.key, val.name, val.photoUrl);
+    this.players.push(val.uid);
   }.bind(this);
   this.playersRef.limitToLast(12).on('child_added', setPlayer);
   this.playersRef.limitToLast(12).on('child_changed', setPlayer);
@@ -82,6 +85,7 @@ Encadenados.prototype.registerUserToGame = function() {
 Encadenados.prototype.loadWords = function() {
   this.wordsRef = this.database.ref('words');
   this.wordsRef.off();
+  this.words = [];
   var setMessage = function(data) {
     var val = data.val();
     this.displayMessage(data.key, val.name, val.text, val.photoUrl, val.imageUrl);
@@ -89,7 +93,6 @@ Encadenados.prototype.loadWords = function() {
       who: val.uid,
       what: val.text
     });
-    console.log(this.words);
   }.bind(this);
   this.wordsRef.limitToLast(12).on('child_added', setMessage);
   this.wordsRef.limitToLast(12).on('child_changed', setMessage);
@@ -106,6 +109,11 @@ Encadenados.prototype.sendWord = function(e) {
       photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
     }).then(function() {
       Encadenados.resetMaterialTextfield(this.messageInput);
+      console.log(this.players);
+      console.log(currentUser.uid);
+      if (this.players.indexOf(currentUser.uid) < 0) {
+        this.registerUserToGame();
+      }
       this.toggleButton();
     }.bind(this)).catch(function(error) {
       console.error('Error writing new message to Firebase Database', error);
