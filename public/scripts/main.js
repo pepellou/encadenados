@@ -15,7 +15,7 @@
  */
 'use strict';
 
-function FriendlyChat() {
+function Encadenados() {
   this.checkSetup();
 
   this.messageList = document.getElementById('messages');
@@ -28,12 +28,14 @@ function FriendlyChat() {
   this.userPic = document.getElementById('user-pic');
   this.userName = document.getElementById('user-name');
   this.signInButton = document.getElementById('sign-in');
+  this.signInTwitterButton = document.getElementById('sign-in-twitter');
   this.signOutButton = document.getElementById('sign-out');
   this.signInSnackbar = document.getElementById('must-signin-snackbar');
 
   this.messageForm.addEventListener('submit', this.saveMessage.bind(this));
   this.signOutButton.addEventListener('click', this.signOut.bind(this));
   this.signInButton.addEventListener('click', this.signIn.bind(this));
+  this.signInTwitterButton.addEventListener('click', this.signInTwitter.bind(this));
 
   var buttonTogglingHandler = this.toggleButton.bind(this);
   this.messageInput.addEventListener('keyup', buttonTogglingHandler);
@@ -47,14 +49,14 @@ function FriendlyChat() {
   this.initFirebase();
 }
 
-FriendlyChat.prototype.initFirebase = function() {
+Encadenados.prototype.initFirebase = function() {
   this.auth = firebase.auth();
   this.database = firebase.database();
   this.storage = firebase.storage();
   this.auth.onAuthStateChanged(this.onAuthStateChanged.bind(this));
 };
 
-FriendlyChat.prototype.loadMessages = function() {
+Encadenados.prototype.loadMessages = function() {
   this.messagesRef = this.database.ref('messages');
   this.messagesRef.off();
   var setMessage = function(data) {
@@ -65,7 +67,7 @@ FriendlyChat.prototype.loadMessages = function() {
   this.messagesRef.limitToLast(12).on('child_changed', setMessage);
 };
 
-FriendlyChat.prototype.saveMessage = function(e) {
+Encadenados.prototype.saveMessage = function(e) {
   e.preventDefault();
   if (this.messageInput.value && this.checkSignedInWithMessage()) {
     var currentUser = this.auth.currentUser;
@@ -74,7 +76,7 @@ FriendlyChat.prototype.saveMessage = function(e) {
       text: this.messageInput.value,
       photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
     }).then(function() {
-      FriendlyChat.resetMaterialTextfield(this.messageInput);
+      Encadenados.resetMaterialTextfield(this.messageInput);
       this.toggleButton();
     }.bind(this)).catch(function(error) {
       console.error('Error writing new message to Firebase Database', error);
@@ -82,13 +84,13 @@ FriendlyChat.prototype.saveMessage = function(e) {
   }
 };
 
-FriendlyChat.prototype.setImageUrl = function(imageUri, imgElement) {
+Encadenados.prototype.setImageUrl = function(imageUri, imgElement) {
   imgElement.src = imageUri;
 
   // TODO(DEVELOPER): If image is on Firebase Storage, fetch image URL and set img element's src.
 };
 
-FriendlyChat.prototype.saveImageMessage = function(event) {
+Encadenados.prototype.saveImageMessage = function(event) {
   var file = event.target.files[0];
 
   this.imageForm.reset();
@@ -108,18 +110,21 @@ FriendlyChat.prototype.saveImageMessage = function(event) {
   }
 };
 
-FriendlyChat.prototype.signIn = function(googleUser) {
+Encadenados.prototype.signIn = function(googleUser) {
   var provider = new firebase.auth.GoogleAuthProvider();
   this.auth.signInWithPopup(provider);
-
-  // TODO Sign with Twitter
 };
 
-FriendlyChat.prototype.signOut = function() {
+Encadenados.prototype.signInTwitter = function(twitterUser) {
+  var provider = new firebase.auth.TwitterAuthProvider();
+  this.auth.signInWithPopup(provider);
+};
+
+Encadenados.prototype.signOut = function() {
   this.auth.signOut();
 };
 
-FriendlyChat.prototype.onAuthStateChanged = function(user) {
+Encadenados.prototype.onAuthStateChanged = function(user) {
   if (user) {
     var profilePicUrl = user.photoURL;
     var userName = user.displayName;
@@ -132,6 +137,7 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signOutButton.removeAttribute('hidden');
 
     this.signInButton.setAttribute('hidden', 'true');
+    this.signInTwitterButton.setAttribute('hidden', 'true');
 
     this.loadMessages();
   } else {
@@ -140,41 +146,42 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signOutButton.setAttribute('hidden', 'true');
 
     this.signInButton.removeAttribute('hidden');
+    this.signInTwitterButton.removeAttribute('hidden');
   }
 };
 
-FriendlyChat.prototype.checkSignedInWithMessage = function() {
+Encadenados.prototype.checkSignedInWithMessage = function() {
   if (this.auth.currentUser) {
     return true;
   }
 
   var data = {
-    message: 'You must sign-in first',
+    message: 'Debes hacer login primero',
     timeout: 2000
   };
   this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
   return false;
 };
 
-FriendlyChat.resetMaterialTextfield = function(element) {
+Encadenados.resetMaterialTextfield = function(element) {
   element.value = '';
   element.parentNode.MaterialTextfield.boundUpdateClassesHandler();
 };
 
-FriendlyChat.MESSAGE_TEMPLATE =
+Encadenados.MESSAGE_TEMPLATE =
     '<div class="message-container">' +
       '<div class="spacing"><div class="pic"></div></div>' +
       '<div class="message"></div>' +
       '<div class="name"></div>' +
     '</div>';
 
-FriendlyChat.LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif';
+Encadenados.LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif';
 
-FriendlyChat.prototype.displayMessage = function(key, name, text, picUrl, imageUri) {
+Encadenados.prototype.displayMessage = function(key, name, text, picUrl, imageUri) {
   var div = document.getElementById(key);
   if (!div) {
     var container = document.createElement('div');
-    container.innerHTML = FriendlyChat.MESSAGE_TEMPLATE;
+    container.innerHTML = Encadenados.MESSAGE_TEMPLATE;
     div = container.firstChild;
     div.setAttribute('id', key);
     this.messageList.appendChild(div);
@@ -201,7 +208,7 @@ FriendlyChat.prototype.displayMessage = function(key, name, text, picUrl, imageU
   this.messageInput.focus();
 };
 
-FriendlyChat.prototype.toggleButton = function() {
+Encadenados.prototype.toggleButton = function() {
   if (this.messageInput.value) {
     this.submitButton.removeAttribute('disabled');
   } else {
@@ -209,7 +216,7 @@ FriendlyChat.prototype.toggleButton = function() {
   }
 };
 
-FriendlyChat.prototype.checkSetup = function() {
+Encadenados.prototype.checkSetup = function() {
   if (!window.firebase || !(firebase.app instanceof Function) || !window.config) {
     window.alert('You have not configured and imported the Firebase SDK. ' +
         'Make sure you go through the codelab setup instructions.');
@@ -222,5 +229,5 @@ FriendlyChat.prototype.checkSetup = function() {
 };
 
 window.onload = function() {
-  window.friendlyChat = new FriendlyChat();
+  window.friendlyChat = new Encadenados();
 };
