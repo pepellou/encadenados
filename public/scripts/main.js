@@ -18,7 +18,10 @@
 function Encadenados() {
   this.checkSetup();
 
+  this.words = [];
+
   this.messageList = document.getElementById('messages');
+  this.playerList = document.getElementById('players');
   this.messageForm = document.getElementById('message-form');
   this.messageInput = document.getElementById('message');
   this.submitButton = document.getElementById('submit');
@@ -32,7 +35,7 @@ function Encadenados() {
   this.signOutButton = document.getElementById('sign-out');
   this.signInSnackbar = document.getElementById('must-signin-snackbar');
 
-  this.messageForm.addEventListener('submit', this.saveMessage.bind(this));
+  this.messageForm.addEventListener('submit', this.sendWord.bind(this));
   this.signOutButton.addEventListener('click', this.signOut.bind(this));
   this.signInButton.addEventListener('click', this.signIn.bind(this));
   this.signInTwitterButton.addEventListener('click', this.signInTwitter.bind(this));
@@ -40,11 +43,6 @@ function Encadenados() {
   var buttonTogglingHandler = this.toggleButton.bind(this);
   this.messageInput.addEventListener('keyup', buttonTogglingHandler);
   this.messageInput.addEventListener('change', buttonTogglingHandler);
-
-  this.submitImageButton.addEventListener('click', function() {
-    this.mediaCapture.click();
-  }.bind(this));
-  this.mediaCapture.addEventListener('change', this.saveImageMessage.bind(this));
 
   this.initFirebase();
 }
@@ -56,22 +54,53 @@ Encadenados.prototype.initFirebase = function() {
   this.auth.onAuthStateChanged(this.onAuthStateChanged.bind(this));
 };
 
-Encadenados.prototype.loadMessages = function() {
-  this.messagesRef = this.database.ref('messages');
-  this.messagesRef.off();
+Encadenados.prototype.loadPlayers = function() {
+  this.playersRef = this.database.ref('players');
+  this.playersRef.off();
+  var setPlayer = function(data) {
+    var val = data.val();
+    this.displayPlayer(data.key, val.name, val.photoUrl);
+  }.bind(this);
+  this.playersRef.limitToLast(12).on('child_added', setPlayer);
+  this.playersRef.limitToLast(12).on('child_changed', setPlayer);
+};
+
+Encadenados.prototype.registerUserToGame = function() {
+  this.playersRef = this.database.ref('players');
+  this.playersRef.off();
+  var currentUser = this.auth.currentUser;
+  this.playersRef.push({
+    name: currentUser.displayName,
+    uid: currentUser.uid,
+    photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
+  }).then(function() {
+  }.bind(this)).catch(function(error) {
+    console.error('Error writing new message to Firebase Database', error);
+  });
+};
+
+Encadenados.prototype.loadWords = function() {
+  this.wordsRef = this.database.ref('words');
+  this.wordsRef.off();
   var setMessage = function(data) {
     var val = data.val();
     this.displayMessage(data.key, val.name, val.text, val.photoUrl, val.imageUrl);
+    this.words.push({
+      who: val.uid,
+      what: val.text
+    });
+    console.log(this.words);
   }.bind(this);
-  this.messagesRef.limitToLast(12).on('child_added', setMessage);
-  this.messagesRef.limitToLast(12).on('child_changed', setMessage);
+  this.wordsRef.limitToLast(12).on('child_added', setMessage);
+  this.wordsRef.limitToLast(12).on('child_changed', setMessage);
 };
 
-Encadenados.prototype.saveMessage = function(e) {
+Encadenados.prototype.sendWord = function(e) {
   e.preventDefault();
-  if (this.messageInput.value && this.checkSignedInWithMessage()) {
+  if (this.messageInput.value && this.checkSignedInWithMessage() && this.checkTurnOkWithMessage()) {
     var currentUser = this.auth.currentUser;
-    this.messagesRef.push({
+    this.wordsRef.push({
+      uid: currentUser.uid,
       name: currentUser.displayName,
       text: this.messageInput.value,
       photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
@@ -88,26 +117,6 @@ Encadenados.prototype.setImageUrl = function(imageUri, imgElement) {
   imgElement.src = imageUri;
 
   // TODO(DEVELOPER): If image is on Firebase Storage, fetch image URL and set img element's src.
-};
-
-Encadenados.prototype.saveImageMessage = function(event) {
-  var file = event.target.files[0];
-
-  this.imageForm.reset();
-
-  if (!file.type.match('image.*')) {
-    var data = {
-      message: 'You can only share images',
-      timeout: 2000
-    };
-    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
-    return;
-  }
-  if (this.checkSignedInWithMessage()) {
-
-    // TODO(DEVELOPER): Upload image to Firebase storage and add message.
-
-  }
 };
 
 Encadenados.prototype.signIn = function(googleUser) {
@@ -128,6 +137,7 @@ Encadenados.prototype.onAuthStateChanged = function(user) {
   if (user) {
     var profilePicUrl = user.photoURL;
     var userName = user.displayName;
+    var userUID = user.uid;
 
     this.userPic.style.backgroundImage = 'url(' + profilePicUrl + ')';
     this.userName.textContent = userName;
@@ -139,7 +149,8 @@ Encadenados.prototype.onAuthStateChanged = function(user) {
     this.signInButton.setAttribute('hidden', 'true');
     this.signInTwitterButton.setAttribute('hidden', 'true');
 
-    this.loadMessages();
+    this.loadPlayers();
+    this.loadWords();
   } else {
     this.userName.setAttribute('hidden', 'true');
     this.userPic.setAttribute('hidden', 'true');
@@ -163,6 +174,19 @@ Encadenados.prototype.checkSignedInWithMessage = function() {
   return false;
 };
 
+Encadenados.prototype.checkTurnOkWithMessage = function() {
+  if (this.auth.currentUser.uid != this.words.slice(-1)[0].who) {
+    return true;
+  }
+
+  var data = {
+    message: 'La última palabra ha sido tuya. Debes esperar tu turno!',
+    timeout: 2000
+  };
+  this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
+  return false;
+};
+
 Encadenados.resetMaterialTextfield = function(element) {
   element.value = '';
   element.parentNode.MaterialTextfield.boundUpdateClassesHandler();
@@ -175,7 +199,30 @@ Encadenados.MESSAGE_TEMPLATE =
       '<div class="name"></div>' +
     '</div>';
 
+Encadenados.PLAYER_TEMPLATE =
+    '<div class="player-container">' +
+      '<div class="spacing"><div class="pic"></div></div>' +
+      '<div class="name"></div>' +
+    '</div>';
+
 Encadenados.LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif';
+
+Encadenados.prototype.displayPlayer = function(key, name, picUrl) {
+  var div = document.getElementById(key);
+  if (!div) {
+    var container = document.createElement('div');
+    container.innerHTML = Encadenados.PLAYER_TEMPLATE;
+    div = container.firstChild;
+    div.setAttribute('id', key);
+    this.playerList.appendChild(div);
+  }
+  if (picUrl) {
+    div.querySelector('.pic').style.backgroundImage = 'url(' + picUrl + ')';
+  }
+  div.querySelector('.name').textContent = name;
+  setTimeout(function() {div.classList.add('visible')}, 1);
+  this.playerList.scrollTop = this.messageList.scrollHeight;
+};
 
 Encadenados.prototype.displayMessage = function(key, name, text, picUrl, imageUri) {
   var div = document.getElementById(key);

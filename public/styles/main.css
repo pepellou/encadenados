@@ -17,15 +17,18 @@
 html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
-main, #messages-card {
+main, #messages-card, #players-card {
   height: 100%;
   padding-bottom: 0;
 }
-#messages-card-container {
-  height: calc(100% - 150px);
+#players-card h4 {
+  padding-left: 20px;
+}
+#messages-card-container, #players-card-container {
+  height: calc(100% - 75px);
   padding-bottom: 0;
 }
-#messages-card {
+#messages-card, #players-card {
   margin-top: 15px;
 }
 .mdl-layout__header-row span {
@@ -50,21 +53,26 @@ main, #messages-card {
   height: 100%;
   padding-top: 0;
 }
-#messages {
+#messages, #players {
   overflow-y: auto;
   margin-bottom: 10px;
-  height: calc(100% - 90px);
   flex: 1 1 auto;
   flex-direction: column;
   display: flex;
 }
-#message-filler {
+#messages {
+  height: calc(100% - 90px);
+}
+#players {
+  height: 100%;
+}
+#message-filler, #player-filler {
   flex-grow: 1;
 }
-.message-container:first-of-type {
+.message-container:first-of-type, .player-container:first-of-type {
   border-top-width: 0;
 }
-.message-container {
+.message-container, .player-container {
   display: block;
   margin-top: 10px;
   border-top: 1px solid #f3f3f3;
@@ -72,10 +80,10 @@ main, #messages-card {
   opacity: 0;
   transition: opacity 1s ease-in-out;
 }
-.message-container.visible {
+.message-container.visible, .player-container.visible {
   opacity: 1;
 }
-.message-container .pic {
+.message-container .pic, .player-container .pic {
   background-image: url('/images/profile_placeholder.png');
   background-repeat: no-repeat;
   width: 30px;
@@ -83,16 +91,16 @@ main, #messages-card {
   background-size: 30px;
   border-radius: 20px;
 }
-.message-container .spacing {
+.message-container .spacing, .player-container .spacing {
   display: table-cell;
   vertical-align: top;
 }
-.message-container .message {
+.message-container .message, .player-container .player {
   display: table-cell;
   width: calc(100% - 40px);
   padding: 5px 0 5px 10px;
 }
-.message-container .name {
+.message-container .name, .player-container .name {
   display: inline-block;
   width: 100%;
   padding-left: 40px;
@@ -164,7 +172,7 @@ main, #messages-card {
 #image-form #submitImage .material-icons {
   top: -1px;
 }
-.message img {
+.message img, .player img {
   max-width: 300px;
   max-height: 200px;
 }

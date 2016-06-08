@@ -1,0 +1,40 @@
+{
+  "words" : {
+    "-KJflj0YKvnn2qps8tQG" : {
+      "uid" : "TYOTokIVidf6YWMriA5sh6FQAnC3",
+      "name" : "Pepe Doval",
+      "photoUrl" : "https://lh6.googleusercontent.com/-oLes6iyDagg/AAAAAAAAAAI/AAAAAAAAMVg/k_3tmNgFxiE/s96-c/photo.jpg",
+      "text" : "calamar"
+    },
+    "-KJiBih3yrLj7VaWFxdl" : {
+      "uid" : "uRFqWJuleQMeDz7sVeZLwranZr82",
+      "name" : "SetPay Enfurecido",
+      "photoUrl" : "http://pbs.twimg.com/profile_images/718128797879508992/gNzyLVtb_normal.jpg",
+      "text" : "marca"
+    },
+    "-KJiBpBC-93WpGEA_9X2" : {
+      "uid" : "TYOTokIVidf6YWMriA5sh6FQAnC3",
+      "name" : "Pepe Doval",
+      "photoUrl" : "https://lh6.googleusercontent.com/-oLes6iyDagg/AAAAAAAAAAI/AAAAAAAAMVg/k_3tmNgFxiE/s96-c/photo.jpg",
+      "text" : "cachopo"
+    },
+    "-KJiCYPlCz8sQ9fCX4Ih" : {
+      "uid" : "uRFqWJuleQMeDz7sVeZLwranZr82",
+      "name" : "SetPay Enfurecido",
+      "photoUrl" : "http://pbs.twimg.com/profile_images/718128797879508992/gNzyLVtb_normal.jpg",
+      "text" : "poca"
+    }
+  },
+  "players" : {
+    "-KJiXPQT074DB4bY0jbP" : {
+      "name" : "Pepe Doval",
+      "photoUrl" : "https://lh6.googleusercontent.com/-oLes6iyDagg/AAAAAAAAAAI/AAAAAAAAMVg/k_3tmNgFxiE/s96-c/photo.jpg",
+      "uid" : "TYOTokIVidf6YWMriA5sh6FQAnC3"
+    },
+    "-KJiXTCPh59y4Q8GAJ-V" : {
+      "name" : "SetPay Enfurecido",
+      "photoUrl" : "http://pbs.twimg.com/profile_images/718128797879508992/gNzyLVtb_normal.jpg",
+      "uid" : "uRFqWJuleQMeDz7sVeZLwranZr82"
+    }
+  }
+}
