@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 describe 'Games API' do
@@ -10,5 +11,4 @@ describe 'Games API' do
     expect(response).to be_success
     expect(created_game[:name]).to eq(name)
   end
-
 end
