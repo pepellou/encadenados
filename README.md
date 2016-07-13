@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/pepellou/encadenados.png?label=ready&title=Ready)](https://waffle.io/pepellou/encadenados)
 # README
 
 [![Build Status](https://travis-ci.org/pepellou/encadenados.svg?branch=master)](https://travis-ci.org/pepellou/encadenados)
