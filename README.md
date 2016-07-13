@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/pepellou/encadenados.png?label=ready&title=Ready)](https://waffle.io/pepellou/encadenados)
 # README
 
 This README would normally document whatever steps are necessary to get the
